@@ -6,7 +6,7 @@ const { OpenAI } = require('openai');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize OpenAI client using the environment variable
+// Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '/')));
 
-// Endpoint: Generate AI Script
+// Endpoint 1: Generate AI Script
 app.post('/api/generate-script', async (req, res) => {
   const { topic, voice, style } = req.body;
 
@@ -29,12 +29,12 @@ app.post('/api/generate-script', async (req, res) => {
       messages: [
         {
           role: 'system',
-          content: `You are an expert viral short-form video creator for TikTok and YouTube Shorts.
-          Generate a high-retention script for the requested topic.
-          Your output MUST be a valid JSON object with these exact keys:
-          - "hook": A high-energy, 3 to 6 word opening text overlay.
-          - "scriptText": The main spoken narration (30-45 seconds long).
-          - "cta": A strong short call to action for profile bio clicks.`
+          content: `You are an expert viral short-form video creator. 
+          Generate a high-retention script for the topic.
+          Return ONLY a valid JSON object with:
+          - "hook": Short energetic text overlay (3-5 words).
+          - "scriptText": Spoken narration for 30 seconds.
+          - "cta": Short call-to-action.`
         },
         {
           role: 'user',
@@ -51,8 +51,37 @@ app.post('/api/generate-script', async (req, res) => {
       data: aiData
     });
   } catch (err) {
-    console.error('OpenAI Error:', err);
+    console.error('OpenAI Script Error:', err);
     res.status(500).json({ error: 'Failed to generate script via OpenAI' });
+  }
+});
+
+// Endpoint 2: Generate Voice Audio (OpenAI TTS)
+app.post('/api/generate-voice', async (req, res) => {
+  const { text, voice = 'onyx' } = req.body;
+
+  if (!text) {
+    return res.status(400).json({ error: 'Text prompt is required for TTS' });
+  }
+
+  try {
+    // Generate voice MP3 using OpenAI TTS API
+    const mp3 = await openai.audio.speech.create({
+      model: 'tts-1', // Fast latency for web apps
+      voice: voice,   // Voice options: onyx, alloy, echo, fable, nova, shimmer
+      input: text,
+    });
+
+    const buffer = Buffer.from(await mp3.arrayBuffer()); //
+    const base64Audio = buffer.toString('base64'); //
+
+    res.json({
+      success: true,
+      audioUrl: `data:audio/mp3;base64,${base64Audio}`
+    });
+  } catch (err) {
+    console.error('OpenAI TTS Error:', err);
+    res.status(500).json({ error: 'Failed to generate voice audio' });
   }
 });
 
