@@ -4,7 +4,8 @@ const path = require('path');
 const { OpenAI } = require('openai');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// Use Render's PORT or fallback to 10000
+const PORT = process.env.PORT || 10000;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -55,6 +56,7 @@ app.post('/api/generate-script', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// Explicitly bind to 0.0.0.0 for Render
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`CLIPHAM running on port ${PORT}`);
 });
