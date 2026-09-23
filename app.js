@@ -1,9 +1,13 @@
+// app.js - Connected to CLIPHAM Express Backend
+
 function setTopic(text) {
   document.getElementById('topicInput').value = text;
 }
 
-function simGenerate() {
+async function simGenerate() {
   const topic = document.getElementById('topicInput').value;
+  const voice = document.getElementById('voiceSelect').value;
+  const style = document.getElementById('captionStyle').value;
   const statusText = document.getElementById('statusText');
   const captionPreview = document.getElementById('captionPreview');
   const scriptBox = document.getElementById('scriptBox');
@@ -14,15 +18,41 @@ function simGenerate() {
     return;
   }
 
-  btn.innerText = '⚡ Processing AI Script & Media...';
-  statusText.innerText = 'Fetching High-Retention Assets...';
+  // UI state updates
+  btn.disabled = true;
+  btn.innerText = '⚡ Requesting AI Engine...';
+  statusText.innerText = 'Generating Viral Script...';
 
-  setTimeout(() => {
+  try {
+    // Real API request to server.js backend
+    const response = await fetch('/api/generate-script', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, voice, style })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      const data = result.data;
+      
+      // Update preview canvas and script box dynamically
+      btn.innerText = '🚀 Generate Video Draft';
+      statusText.innerText = 'Preview Loaded';
+      captionPreview.innerText = data.hook;
+      
+      scriptBox.value = `[HOOK]: ${data.hook}\n\n[NARRATION]: ${data.scriptText}\n\n[CTA]: ${data.cta}`;
+    } else {
+      throw new Error(result.error || 'Server processing failed');
+    }
+  } catch (err) {
+    console.error('Generation Error:', err);
+    statusText.innerText = 'Error Generating Preview';
+    alert('Failed to connect to backend server.');
+  } finally {
+    btn.disabled = false;
     btn.innerText = '🚀 Generate Video Draft';
-    statusText.innerText = 'Preview Loaded';
-    captionPreview.innerText = 'THIS CHANGES EVERYTHING!';
-    scriptBox.value = `[HOOK]: Stop scrolling if you care about performance.\n[BODY]: Here is why the ${topic} is breaking records this year.\n[CTA]: Check link in bio to monetize yours today.`;
-  }, 1500);
+  }
 }
 
 function copyScript() {
@@ -32,6 +62,14 @@ function copyScript() {
   alert('Script copied to clipboard!');
 }
 
-function renderFinal() {
-  alert('Initiating backend render... Dedicated video credits will be deducted.');
+async function renderFinal() {
+  const scriptText = document.getElementById('scriptBox').value;
+  
+  if (!scriptText) {
+    alert('Generate a script draft before rendering!');
+    return;
+  }
+
+  alert('Initiating HD MP4 rendering queue on Node.js backend...');
 }
+
