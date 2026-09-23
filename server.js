@@ -1,19 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { OpenAI } = require('openai');
+const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Initialize Google Gemini API client using key from environment variables
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '/')));
 
+// Endpoint: Generate Script using Gemini 2.5 Flash
 app.post('/api/generate-script', async (req, res) => {
   const { topic } = req.body;
 
@@ -22,35 +22,33 @@ app.post('/api/generate-script', async (req, res) => {
   }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: `You are an expert viral short-form video creator. 
-          Generate a high-retention script for the requested topic.
-          Return ONLY a valid JSON object with:
-          - "hook": Short energetic text overlay (3-5 words).
-          - "scriptText": Spoken narration for 30 seconds.
-          - "cta": Short call-to-action.`
-        },
-        {
-          role: 'user',
-          content: `Topic: ${topic}`
-        }
-      ],
-      response_format: { type: "json_object" }
+    const prompt = `You are an expert viral short-form video creator. 
+Generate a high-retention script for the following topic: "${topic}".
+Return ONLY a raw, valid JSON object with no markdown formatting or backticks.
+Format:
+{
+  "hook": "Short energetic text overlay (3-5 words)",
+  "scriptText": "Spoken narration for 30 seconds",
+  "cta": "Short call-to-action"
+}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json'
+      }
     });
 
-    const aiData = JSON.parse(response.choices[0].message.content);
+    const aiData = JSON.parse(response.text);
 
     res.json({
       success: true,
       data: aiData
     });
   } catch (err) {
-    console.error('OpenAI Error:', err);
-    res.status(500).json({ error: 'Failed to generate script via OpenAI' });
+    console.error('Gemini API Error:', err);
+    res.status(500).json({ error: 'Failed to generate script via Gemini API' });
   }
 });
 
