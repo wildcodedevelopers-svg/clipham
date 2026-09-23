@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLIPHAM — AI Video Auto-Pilot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>CLIPHAM</h2>
+        <span class="badge">PRO</span>
+      </div>
+      <nav class="nav-menu">
+        <button class="nav-item active">🎥 Create Clip</button>
+        <button class="nav-item">📊 Performance</button>
+        <button class="nav-item">💸 Monetization</button>
+        <button class="nav-item">⚙️ Settings</button>
+      </nav>
+      <div class="credits-box">
+        <p>Available Credits</p>
+        <h3>48 / 50</h3>
+        <button class="btn-upgrade">Top Up Credits</button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+      <!-- Left: Creation Controls -->
+      <section class="control-panel">
+        <div class="panel-header">
+          <h1>Generate Viral Clip</h1>
+          <p>Auto-generate high-retention short videos with monetization hooks.</p>
+        </div>
+
+        <form id="clipForm" onsubmit="event.preventDefault();">
+          <div class="form-group">
+            <label for="topicInput">Niche / Topic Prompt</label>
+            <input type="text" id="topicInput" placeholder="e.g., Top 3 BMW M models of all time or Stoic Mindset..." required>
+            <div class="tag-chips">
+              <span class="chip" onclick="setTopic('Automotive High-Performance')">Automotive</span>
+              <span class="chip" onclick="setTopic('Dark Tech & AI')">Tech</span>
+              <span class="chip" onclick="setTopic('Wealth & Business Mindset')">Finance</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="voiceSelect">AI Voice Persona</label>
+              <select id="voiceSelect">
+                <option value="adam">Deep English (Male)</option>
+                <option value="rachel">Energetic English (Female)</option>
+                <option value="marcus">Cinematic Narrator</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="captionStyle">Subtitle Style</label>
+              <select id="captionStyle">
+                <option value="capcut">Bold Yellow (CapCut Style)</option>
+                <option value="minimal">Minimal White Bold</option>
+                <option value="neon">Neon Cyan Glow</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group toggle-group">
+            <label for="affiliateToggle">Inject Auto-Affiliate Hook</label>
+            <input type="checkbox" id="affiliateToggle" checked>
+          </div>
+
+          <button class="btn-primary" id="generateBtn" onclick="simGenerate()">🚀 Generate Video Draft</button>
+        </form>
+      </section>
+
+      <!-- Right: Live 9:16 Video Canvas Preview -->
+      <section class="preview-panel">
+        <div class="phone-frame">
+          <div class="video-overlay" id="videoOverlay">
+            <span class="caption-text" id="captionPreview">YOUR VIRAL HOOK HERE</span>
+          </div>
+          <div class="placeholder-media" id="mediaBox">
+            <p id="statusText">Ready to Render</p>
+          </div>
+        </div>
+
+        <!-- Script Timeline -->
+        <div class="script-timeline">
+          <h3>Generated Script</h3>
+          <textarea id="scriptBox" readonly placeholder="Your AI script breakdown will appear here..."></textarea>
+          <div class="action-bar">
+            <button class="btn-secondary" onclick="copyScript()">Copy Script</button>
+            <button class="btn-action" onclick="renderFinal()">Render HD MP4</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
